@@ -1,0 +1,3 @@
+#!/bin/bash
+cd "/home/roberta/Área de Trabalho/Desenvolvimento/ScanWalker/"
+python main.py
