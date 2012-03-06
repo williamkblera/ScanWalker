@@ -134,6 +134,33 @@ class listaProdutos:
         for i in self.produtos:
             cont = cont + int(i.saldo_estoque)
         return cont
+        
+    def ContaItens(self):
+        """
+        Conta itens na lista
+        """
+        cont = 0
+        for i in self.produtos:
+            cont = cont + 1
+        return cont
+    def ContaNovosItens(self):
+        """
+        Conta novos itens cadastrados
+        """
+        cont = 0
+        for i in self.produtos:
+            if i.cod_produto == "0":
+                cont = cont + 1
+        return cont
+    def ContaOldItens(self):
+        """
+        Conta itens que já tinham cadastro
+        """
+        cont = 0
+        for i in self.produtos:
+            if i.cod_produto != "0":
+                cont = cont + 1
+        return cont
     
     def FiltraProdutos(self, regex, adj="descricao"):
         """
