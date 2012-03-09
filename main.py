@@ -71,7 +71,7 @@ class JanelaCodUp:
             # Pegando posição da janela raiz e da toplevel
             #possjnEtiq =  self.jnEtiquetas.geometry().split('+')
             possRaiz = raiz.geometry().split('+')       
-            possjnEtiquetas = str("970x350") + "+" + str(possRaiz[1]) + "+" + str(int(possRaiz[-1])+int(possRaiz[0].split('x')[1])+50)
+            possjnEtiquetas = str("650x320") + "+" + str(possRaiz[1]) + "+" + str(int(possRaiz[-1])+int(possRaiz[0].split('x')[1])+50)
             
             
             # Posicionado janela abaixo da janela de menu
@@ -88,55 +88,7 @@ class JanelaCodUp:
             self.labelTotOldProd.set(str(self.produtosLido.ContaOldItens()))
             self.labelTotGeralProd.set(str(self.produtosLido.ContaTotalProdutos()))
             
-            #############################
-            #   Primeira linha da grid
-            #############################
             
-            # Codigo produto
-            Label(self.janela, text="Cod. Produto").grid(row=0, column=0)
-            self.jnetcodproduto = Entry(self.janela, name="jnetcodprod")
-            self.jnetcodproduto["width"] = 10
-            self.jnetcodproduto.grid(row=0, column=1)
-            
-            # Setando o evento do teclado para a descricao, quando qualwuer tecla for presionada chamda filtraProdutos
-            self.jnetcodproduto.bind("<KeyRelease>", self.filtraProdutos)
-            
-            # Descricão
-            Label(self.janela, text="Descrição").grid(row=0, column=2)
-            self.jnetdescricao = Entry(self.janela, name="jnetdescricao")
-            self.jnetdescricao["width"] = 50
-            self.jnetdescricao.grid(row=0, column=3)
-            self.jnetdescricao.focus_force()
-            
-            # Setando o evento do teclado para a descricao, quando qualwuer tecla for presionada chamda filtraProdutos
-            self.jnetdescricao.bind("<KeyRelease>", self.filtraProdutos)
-            
-            # Codigo de Barras
-            Label(self.janela, text="Cod. Barras").grid(row=0, column=4)
-            self.jnetcodbarra = Entry(self.janela, name="jnetcodbarras")
-            self.jnetcodbarra["width"] = 20
-            self.jnetcodbarra.grid(row=0, column=5)
-            
-            # Setando o evento do teclado para o Cod. Barras, quando qualquer tecla for presionada chamda filtraProdutos
-            self.jnetcodbarra.bind("<KeyRelease>", self.filtraProdutos)
-            self.jnetcodbarra.bind("<FocusIn>", self.filtraProdutos)
-            
-            # Quantidades
-            Label(self.janela, text="Saldo").grid(row=0, column=6)
-            self.jnetsaldo = Entry(self.janela, name="jnetsaldo")
-            self.jnetsaldo["width"] = 10
-            self.jnetsaldo.grid(row=0, column=7)
-            
-            
-            # Setando o evento do teclado para o Cod. Barras, quando qualwuer tecla for presionada chamda filtraProdutos
-            self.jnetsaldo.bind("<KeyRelease>", self.filtraProdutos)
-            self.jnetsaldo.bind("<FocusIn>", self.filtraProdutos)
-            
-            
-            
-            ################################
-            #   Fim Primeira linha da grid #
-            ################################
             
             ##############################
             #   Segunda linha da grid    #
@@ -395,7 +347,589 @@ class JanelaCodUp:
         Pega o produto que foi selecionado na treeview e envia para a JanelaProduto
         """
         pass
+        
+class Listas:
+    """
+    Cria listas com os produtos cadastrados.
+    """
+    def __init__(self, janelaraiz):
+        
+        # Criando lista de produtos
+        #self.listadeprodutos = listaProdutos()        
+        #self.listadeprodutos.PegaListadoBanco()
+        self.listadeprodutos = deepcopy(listaProdOg)
+        self.janelaraiz = janelaraiz
+        
+        # Criando lista de produtos selecionados para criar as etiquetas
+        self.produtosselecionados = listaProdutos()
+        
+        # Criando variaveis p/ label com o total de etiquetas e paginas
+        #self.labelTotEtiq = StringVar()
+        #self.labelTotPag = StringVar()
+        
+        #self.labelTotEtiq.set("0")
+        #self.labelTotPag.set("0")
+        
+        
+        
+        
+        # Criando Janela TopLevel
+        self.janelaetiquetas = Toplevel()
+        self.janelaetiquetas.title("Impressão de Lista de Produtos")
+        #self.janelaetiquetas.resizable(FALSE,FALSE)
+        self.janelaetiquetas.protocol("WM_DELETE_WINDOW",self.FechaJanela)  # Colocando a função de fechar a janela
+        #self.janelaetiquetas.focus_set()
+        self.Forca_Focus()
+        
+        # Pegando posição da janela raiz e da toplevel
+        #possjnEtiq =  self.jnEtiquetas.geometry().split('+')
+        possRaiz = self.janelaraiz.geometry().split('+')       
+        possjnEtiquetas = str("866x666") + "+" + str(possRaiz[1]) + "+" + str(int(possRaiz[-1])+int(possRaiz[0].split('x')[1])+50)
+        
+        
+        # Posicionado janela abaixo da janela de menu
+        self.janelaetiquetas.geometry(possjnEtiquetas)
+        
+        
+        Label(self.janelaetiquetas, text="Gerar Lista de Produtos", font=("Helvetica", 16)).grid(row=0, column=0, columnspan=8)
+        self.btnGetArq = Button(self.janelaetiquetas, text="Selecionar Arquivo", command=self.AbreArquivo)
+        self.btnGetArq.grid(row=1, column=0, stick=W)
+        
+        self.fileName = StringVar()
+        self.fileName.set("")
+        
+        Label(self.janelaetiquetas, textvariable=self.fileName).grid(row=1, column=1, columnspan=4, stick=W)
+        
+        btnBuscarNoBanco = Button(self.janelaetiquetas, text="Buscar no Banco", command=self.BuscaBanco)
+        btnBuscarNoBanco.grid(row=1, column=5, stick=W)
+        
+        #############################
+        #   Primeira linha da grid
+        #############################
+        
+        # Codigo produto
+        Label(self.janelaetiquetas, text="Cod. Produto").grid(row=2, column=0)
+        self.jnetcodproduto = Entry(self.janelaetiquetas, name="jnetcodprod")
+        self.jnetcodproduto["width"] = 10
+        self.jnetcodproduto.grid(row=2, column=1)
+        
+        # Setando o evento do teclado para a descricao, quando qualwuer tecla for presionada chamda filtraProdutos
+        self.jnetcodproduto.bind("<KeyRelease>", self.filtraProdutos)
+        
+        # Descricão
+        Label(self.janelaetiquetas, text="Descrição").grid(row=2, column=2)
+        self.jnetdescricao = Entry(self.janelaetiquetas, name="jnetdescricao")
+        self.jnetdescricao["width"] = 50
+        self.jnetdescricao.grid(row=2, column=3)
+        self.jnetdescricao.focus_force()
+        
+        # Setando o evento do teclado para a descricao, quando qualwuer tecla for presionada chamda filtraProdutos
+        self.jnetdescricao.bind("<KeyRelease>", self.filtraProdutos)
+        
+        # Codigo de Barras
+        Label(self.janelaetiquetas, text="Cod. Barras").grid(row=2, column=4)
+        self.jnetcodbarra = Entry(self.janelaetiquetas, name="jnetcodbarras")
+        self.jnetcodbarra["width"] = 20
+        self.jnetcodbarra.grid(row=2, column=5)
+        
+        # Setando o evento do teclado para o Cod. Barras, quando qualquer tecla for presionada chamda filtraProdutos
+        self.jnetcodbarra.bind("<KeyRelease>", self.filtraProdutos)
+        self.jnetcodbarra.bind("<FocusIn>", self.filtraProdutos)
+        
+        # Quantidades
+        Label(self.janelaetiquetas, text="Saldo").grid(row=2, column=6)
+        self.jnetsaldo = Entry(self.janelaetiquetas, name="jnetsaldo")
+        self.jnetsaldo["width"] = 10
+        self.jnetsaldo.grid(row=2, column=7)
+        
+        
+        # Setando o evento do teclado para o Cod. Barras, quando qualwuer tecla for presionada chamda filtraProdutos
+        self.jnetsaldo.bind("<KeyRelease>", self.filtraProdutos)
+        self.jnetsaldo.bind("<FocusIn>", self.filtraProdutos)
+        
+        
+        
+        ################################
+        #   Fim Primeira linha da grid #
+        ################################
+        
+        ##############################
+        #   Segunda linha da grid    #
+        ##############################
+        self.jnettreeview = self.CriaTreeView(self.janelaetiquetas, numlinhas=3, numcolunas=0, columnspan=8, rowspan=10)
+        self.jnettreeview.grid(row=3, column=0, columnspan=8, rowspan=10)
+        self.jnettreeview._name = "treeview"
+        self.jnettreeview.bind("<Double-Button-1>", self.SelecionaProduto)
+        self.jnettreeview.bind("<Return>", self.SelecionaProduto)
+        self.jnettreeview.bind("<KeyRelease>", self.eventTreeV)
+        
+        ###############################
+        #  Fim Segunda linha da grid  #
+        ###############################
+        
+        ###############################
+        #  Terceira linha da grid     #
+        ###############################
+      
+        
+        ###############################
+        # Fim Terceira linha da grid  #
+        ###############################
+        
+        ##############################
+        #   Quarta linha da grid     #
+        ##############################
+        self.jnettreeview2 = self.CriaTreeView(self.janelaetiquetas, numlinhas=16, numcolunas=0, columnspan=8, rowspan=10)
+        self.jnettreeview2.grid(row=16, column=0, columnspan=8, rowspan=10)
+        self.jnettreeview2.bind("<Double-Button-1>", self.AlteraQTD)
+        self.jnettreeview2.bind("<Return>", self.AlteraQTD)
+        
+        ###############################
+        #  Fim Quarta linha da grid   #
+        ###############################
+        
+        ###############################
+        #  Quinta linha da grid       #
+        ###############################
+        # Row 27
+        frame = ttk.Frame(self.janelaetiquetas, borderwidth=5, relief="groove")
+        frame.grid(column=1, row=27, columnspan=3, stick=W)
+        Label(frame, text="Selecione os item que aparecerão na lista",font=("Helvetica", 12)).grid(row=0, column=0, columnspan=4)
+        
+        self.opcoes = []
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")
+        
+        Checkbutton(
+            frame, text="Tick", variable=self.opcoes[-1],
+            onvalue="Tick", offvalue="Off"
+            ).grid(row=1, column=0, stick=W)
+            
+        
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")
+        
+        Checkbutton(
+            frame, text="Cod. Produto", variable=self.opcoes[-1],
+            onvalue="CodProd", offvalue="Off"
+            ).grid(row=1, column=1, stick=W)
+            
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")
+        
+        Checkbutton(
+            frame, text="Quantidade", variable=self.opcoes[-1],
+            onvalue="Qtd", offvalue="Off"
+            ).grid(row=1, column=2, stick=W)
+            
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")
+        
+        Checkbutton(
+            frame, text="Descricao", variable=self.opcoes[-1],
+            onvalue="Desc", offvalue="Off"
+            ).grid(row=2, column=0, stick=W)
+            
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")
+        
+        Checkbutton(
+            frame, text="Cod. Barras", variable=self.opcoes[-1],
+            onvalue="CodBarras", offvalue="Off"
+            ).grid(row=2, column=1, stick=W)
+        
+        frame2 = ttk.Frame(self.janelaetiquetas, borderwidth=5, relief="groove")
+        frame2.grid(column=4, row=27, columnspan=3, stick=W)
+        
+        
+        Label(frame2, text="Colocar na lista os seguintes itens:",
+            font=("Helvetica", 12)).grid(row=0, column=0)
+        
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")        
+        
+        Checkbutton(
+            frame2, text="Itens não cadastrados", variable=self.opcoes[-1],
+            onvalue="New", offvalue="Off"
+            ).grid(row=1, column=0, stick=W)
+        
+        self.opcoes.append(StringVar())
+        self.opcoes[-1].set("Off")
+        
+        Checkbutton(
+            frame2, text="Itens cadastrados", variable=self.opcoes[-1],
+            onvalue="Old", offvalue="Off"
+            ).grid(row=2, column=0, stick=W)
+        
+        
+        
+        ###############################
+        #  Fim Quinta linha da grid   #
+        ###############################
+        
+        ###############################
+        #  Sexta linha da grid       #
+        ###############################
+        self.jnetbuttongeraretq = Button(self.janelaetiquetas, text="Gerar Lista", command=self.CriaLista)
+        self.jnetbuttongeraretq.grid(row=29, column=2)
+        
+        self.jnetbuttoncancelar = Button(self.janelaetiquetas, text="Cancelar", command=self.FechaJanela)
+        self.jnetbuttoncancelar.grid(row=29, column=4)
+        
+        ###############################
+        #  Fim Sexta linha da grid   #
+        ###############################
+        
+        # Colocando dados na treeview
+        self.cadastraListaProdutos(self.listadeprodutos, self.jnettreeview)
+        
+    def cadastraListaProdutos(self, listaProdutos, treeV):
+        # Coloca dados na tabela
+        #print "Tamanho", len(listaProdutos)
+        if listaProdutos == []:
+            print "Lista Vazia"
+            self.labelTotEtiq.set("0")
+            self.labelTotPag.set("0")
+            #######TODO:XXX Aqui
+        else:
+            #x = []
+           
+            for item in listaProdutos.produtos:
+                #a = (item.cod_produto, item.descricao, item.cod_barras, item.saldo_estoque)
+                #x.append(a)
+                treeV.insert('', 'end', values=(item.cod_produto, item.descricao, item.cod_barras, item.saldo_estoque))
+                # Calculando o total de etiquetas
+               
+                
+            #x.reverse()
+            
+            
+            
+            
+            #for y in x:
+            #    treeV.insert('', 'end', values=y)
+        
+    def AlteraQTD(self, event):
+        self.alteraqtdproduto = JanelaProduto(magicnumber=8)
+        self.alteraqtdproduto.SetPossition(self.janelaraiz)
+        
+        #Pega valores do item
+        item = self.jnettreeview2.item(self.jnettreeview2.selection())
+        
+        valores = item.values()
+        # Verifica se dados não estão vazio
+        if valores[2] != '':
+            novoValor = (valores[2][0], valores[2][1], valores[2][2], valores[2][3])
+            self.alteraqtdproduto.set(
+                codprod=novoValor[0],
+                descricao=novoValor[1],
+                codbarras=novoValor[2],
+                qtd=novoValor[3])
+            #self.produtosselecionados.adicionaProdutos(valores[2][0],valores[2][1], valores[2][2], valores[2][3])
+            #apagaTreeView(self.jnettreeview2)
+            #self.cadastraListaProdutos(self.produtosselecionados, self.jnettreeview2)
+            
+            # Espera a janela ser fechada para continuar
+            #self.janelaraiz.wait_window(self.alteraqtdproduto.alteraJn)
+            self.janelaetiquetas.wait_window(self.alteraqtdproduto.alteraJn)
+            
+            if self.alteraqtdproduto.cancela is False :
+                novoProd = self.alteraqtdproduto.get()
+                
+                prod = Produto(cod_produto=str(novoProd[0]), descricao=str(novoProd[1]), cod_barras=str(novoProd[2]), saldo_estoque=int(novoProd[3]))
+                
+                if prod.saldo_estoque <= 0:
+                    
+                    self.produtosselecionados.RemoveProduto(prod, confirmar=False)
+                else:                
+                    self.produtosselecionados.AlteraProduto(prod)
+                
+                apagaTreeView(self.jnettreeview2)
+                self.cadastraListaProdutos(self.produtosselecionados, self.jnettreeview2)
+                
+                totalprod = self.produtosselecionados.ContaTotalProdutos()
+        
+    def CriaTreeView(self, frame, numlinhas, numcolunas, columnspan, rowspan):
+        '''
+        Cria um treeview para exibir os produtos, pede como parametro o frame onde sera colocado
+        numlinhas = Linha incial da treeview
+        numcolunas = Coluna inicial da treeview
+        columspan = qtd de colunas ocupadas pela treeview
+        rowspan = qtd de linhas ocupadas pela treeview
+        '''
+        pcolum = numcolunas+columnspan  # ultima coluna ocupada pela treeview
+        plinhas = numlinhas+rowspan  # ultima linha ocupada pela treeview
+        
+        
+        # Titulos das colunas na treeview
+        colunas = (
+                'Cod. Produto', 
+                'Descricao                                                                    ', 
+                'Cod. Barras       ', 
+                'Quantidade')
+        
+        treeV = ttk.Treeview(frame, columns=colunas, show="headings", takefocus=1)  
+        
+        # Scrollbar Vertical
+        vsb = ttk.Scrollbar(frame, orient="vertical", command=treeV.yview)
+        # Scroollbar Horizontal
+        hsb = ttk.Scrollbar(frame, orient="horizontal", command=treeV.xview)
+        
+        # Configurando Scrollbars na treeview
+        treeV.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        treeV.grid(column=numcolunas, row=numlinhas, sticky='nsew')
+        
+        # a possição da barra de rolagem recebe a possição inicial do grid + o seu tamanho mais 1
+        # Tanto para a linha como para a coluna
+        vsb.grid(column=pcolum, row=numlinhas, sticky='ns', rowspan=rowspan)
+        hsb.grid(column=numcolunas, row=plinhas, sticky='ew', columnspan=columnspan)
+        
+        # Coloca titulos nas colunas, falta criar funçao de ordenação
+        for col in colunas:
+                treeV.heading(col, text=col.title(),
+                    command=lambda c=col: self.sortby(treeV, c, 0))
+                
+                # Altera o tamanho da coluna para o tamanho do titulo
+                treeV.column(col, width=tkFont.Font().measure(col.title()))
+        
+        
+        return treeV
     
+    def eventTreeV(self, event):
+        """
+        Gerencia os eventos do teclado na treeview
+        """
+        print "Evento do teclado: ", event.keycode
+        if event.widget._name == "treeview":
+            if event.keycode != 40 and event.keycode != 38:
+                # Forçando o focus na descricao
+                
+                if event.keycode != 13:
+                
+                    self.jnetcodproduto.delete(0, END)
+                    self.jnetdescricao.delete(0, END)
+                    self.jnetdescricao.insert(0, event.char.upper())
+                    
+                self.jnetdescricao.focus_force()
+                
+        
+    def Forca_Focus(self):
+        """
+        Força o focus na janela etiquetas
+        """
+        self.janelaetiquetas.focus_set()
+        
+    def FechaJanela(self):
+        print self.janelaetiquetas.geometry()
+        if tkMessageBox.askokcancel("Exit?", "Você tem certeza que deseja fechar?"):
+            self.janelaetiquetas.destroy()
+            self.janelaetiquetas = None
+            
+        else:
+            self.Forca_Focus()
+            
+    def filtraProdutos(self, event):
+        """
+        Utilizada para filtrar os produtos na treeview.
+        """
+        
+        # Transformando em maiuscula
+        text = event.widget.get().upper()
+        event.widget.delete(0,END)
+        event.widget.insert(0,text)
+        if event.widget._name == "jnetdescricao":  # Entry de descricao da janela etiquetas
+            
+            texto = self.jnetdescricao.get()
+            self.jnetcodproduto.delete(0,END)
+            # Caso seja seta para cima ou para baixo não entra 
+            if (event.keycode != 38) and (event.keycode != 40):
+                
+                
+                if texto != "": # Texto vazio não faz nada
+                    # Apaga toda a treeview para ser inserida uma nova
+                    x = self.jnettreeview.get_children() 
+                    for item in x: 
+                        self.jnettreeview.delete(item)
+                    
+                    if len(texto) <= 3:
+                        regex = "^"+texto+"(.*)"
+                        prod = listaProdutos()
+                        prod.produtos = self.listadeprodutos.FiltraProdutos(regex)
+                        #for i in prod:
+                        #    print i.descricao
+                        self.cadastraListaProdutos(prod,self.jnettreeview)
+                        
+                    else:                        
+                        # Criando a expresão regular para a pesquisa
+                        regex = ''
+                        # Explodindo texto para fazer a pesquisa por expresão regular
+                        textoSplit = texto.split()
+                        for te in textoSplit:
+                                regex += '(.*)'+te
+                            
+                        regex += '(.*)'
+                        prod = listaProdutos()
+                        prod.produtos = self.listadeprodutos.FiltraProdutos(regex, adj="descricao")
+                        #for i in prod:
+                        #    print i.descricao
+                        self.cadastraListaProdutos(prod,self.jnettreeview)
+                        
+                
+                else:
+                    #self.cadastraListaProdutos(self.produtosselecionados,self.jnettreeview)
+                    self.cadastraListaProdutos(self.listadeprodutos, self.jnettreeview)
+                    
+            elif event.keycode == 40:
+                # Como a seta para baixo foi apertada seleciona o primeiro produto da treeview
+                # torna ele visivel e forca o focus nela
+                x = self.jnettreeview.get_children()                 
+                self.jnettreeview.selection("set", x[0])
+                self.jnettreeview.focus(x[0])
+                self.jnettreeview.see(x[0])
+                self.jnettreeview.focus_force()
+            elif event.keycode == 38:
+                # Como a seta para cima foi apertada seleciona o ultimo produto da treeview
+                # torna ele visivel e forca o focus nela
+                x = self.jnettreeview.get_children()                 
+                self.jnettreeview.selection("set", x[-1])
+                self.jnettreeview.focus(x[-1])
+                self.jnettreeview.see(x[-1])
+                self.jnettreeview.focus_force()
+                
+                    
+        elif event.widget._name == "jnetcodprod": # Codigo do produto
+            texto = self.jnetcodproduto.get()
+            self.jnetdescricao.delete(0,END)
+            # Caso seja seta para cima ou para baixo não entra 
+            if (event.keycode != 38) and (event.keycode != 40):
+                if texto != "": # Texto vazio não faz nada
+                    # Apaga toda a treeview para ser inserida uma nova
+                    x = self.jnettreeview.get_children() 
+                    for item in x: 
+                        self.jnettreeview.delete(item)
+                        
+                    regex = "^"+texto+"(.*)"
+                    prod = listaProdutos()
+                    prod.produtos = self.listadeprodutos.FiltraProdutos(regex, adj="codprod")
+                    self.cadastraListaProdutos(prod,self.jnettreeview)
+                    
+                else:
+                    #self.cadastraListaProdutos(self.produtosselecionados,self.jnettreeview)
+                    self.cadastraListaProdutos(self.listadeprodutos, self.jnettreeview)
+                    
+            elif event.keycode == 40:
+                # Como a seta para baixo foi apertada seleciona o primeiro produto da treeview
+                # torna ele visivel e forca o focus nela
+                x = self.jnettreeview.get_children()                 
+                self.jnettreeview.selection("set", x[0])
+                self.jnettreeview.focus(x[0])
+                self.jnettreeview.see(x[0])
+                self.jnettreeview.focus_force()
+            elif event.keycode == 38:
+                # Como a seta para cima foi apertada seleciona o ultimo produto da treeview
+                # torna ele visivel e forca o focus nela
+                x = self.jnettreeview.get_children()                 
+                self.jnettreeview.selection("set", x[-1])
+                self.jnettreeview.focus(x[-1])
+                self.jnettreeview.see(x[-1])
+                self.jnettreeview.focus_force()
+        
+        elif event.widget._name == "jnetcodbarras":
+            self.jnetdescricao.focus_force()
+        elif event.widget._name == "jnetsaldo":
+            self.jnetdescricao.focus_force()
+            
+    def BuscaBanco(self):
+        """
+        Busca dados no banco.
+        """
+        self.fileName.set("")
+        # Apaga toda a treeview para ser inserida uma nova
+        x = self.jnettreeview.get_children() 
+        for item in x: 
+            self.jnettreeview.delete(item)
+        # Colocando dados na treeview
+        self.cadastraListaProdutos(self.listadeprodutos, self.jnettreeview)
+        
+            
+    def SelecionaProduto(self, event):
+        """
+        Pega o produto que foi selecionado na treeview e envia para a JanelaProduto
+        """
+        #Pega valores do item
+        item = self.jnettreeview.item(self.jnettreeview.selection())
+        
+        valores = item.values()
+        # Verifica se dados não estão vazio
+        if valores[2] != '':
+            novoValor = (valores[2][0], valores[2][1], valores[2][2], valores[2][3])
+            self.produtosselecionados.adicionaProdutos(valores[2][0],valores[2][1], valores[2][2], valores[2][3])
+            apagaTreeView(self.jnettreeview2)
+            self.cadastraListaProdutos(self.produtosselecionados, self.jnettreeview2)
+            
+                
+            totalprod = self.produtosselecionados.ContaTotalProdutos()
+            
+            
+    
+    def sortby(self, tree, col, descending):
+        '''
+        Organiza o conteudo da treeview baseado na coluna em que houve o click.
+        '''
+        # grab values to sort
+        data = [(tree.set(child, col), child) for child in tree.get_children('')]
+    
+        # reorder data
+        print "Tipo: ", type(data)
+        data.sort(reverse=descending)
+        for indx, item in enumerate(data):
+            tree.move(item[1], '', indx)
+    
+        # switch the heading so that it will sort in the opposite direction
+        tree.heading(col,
+            command=lambda col=col: self.sortby(tree, col, int(not descending)))
+    
+    
+    def CriaLista(self):
+        """
+        Cria as lista em PDF
+        """
+        tipo = ""
+        fileName = asksaveasfilename(filetypes=[('PDF Files','*.pdf')])
+        
+        
+        if fileName:
+            tipo = fileName.split(".")
+            # Forçando para ser um arquivo .csv
+            if tipo[-1] != "pdf":
+                fileName += ".pdf"
+                
+            GeraLista(fileName, self.produtosselecionados, self.opcoes)
+        
+    def AbreArquivo(self):
+        """
+        Abre arquivo csv com os dados dos produtos.
+        """
+        self.produtosLido = listaProdutos()
+        fileName = askopenfilename(filetypes=[('CSV Files','*.csv')])
+        if fileName:
+            self.fileName.set(fileName)
+            arq = csv.reader(open(fileName), delimiter='\t')
+            for [COD_PRODUTO,DESCRICAO,CODBARRAS,SALDOESTOQUE] in arq:
+                
+                    
+                self.produtosLido.adicionaProdutos(cod_produto=COD_PRODUTO, descricao=DESCRICAO, cod_barras=CODBARRAS, saldo_estoque=SALDOESTOQUE)
+                
+            # Apaga toda a treeview para ser inserida uma nova
+            x = self.jnettreeview.get_children() 
+            for item in x: 
+                self.jnettreeview.delete(item)
+            
+            # Colocando dados na treeview
+            self.cadastraListaProdutos(self.produtosLido, self.jnettreeview)
+        
+        
+   
 
 class JanelaRaiz:
     """
@@ -499,7 +1033,8 @@ class JanelaRaiz:
         """
         Abre a janela para gerar as listas com os produtos.
         """
-        pass
+        lista = Listas(self.janelaraiz);
+        
     
     def AbreJanelaCTLEstoque(self):
         try:
