@@ -904,7 +904,7 @@ class Listas:
             if tipo[-1] != "pdf":
                 fileName += ".pdf"
                 
-            GeraLista(fileName, self.produtosselecionados, self.opcoes)
+            GeraLista2(fileName, self.produtosselecionados, self.opcoes)
         
     def AbreArquivo(self):
         """
